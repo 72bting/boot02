@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>任务列表</title>
+
+    <link rel="stylesheet" th:href="${#httpServletRequest.getContextPath()} + '/quartz/bootstrap.min.css'">
+    <link rel="stylesheet" th:href="${#httpServletRequest.getContextPath()} + '/quartz/font/font-awesome.min.css'">
+    <link rel="stylesheet" th:href="${#httpServletRequest.getContextPath()} + '/quartz/cronGen.css'">
+
+</head>
+<body>
+
+    <div id="task_bg_toolbar" style="display:none">
+        <button class="layui-btn" onclick="add_task_page()">添加</button>
+    </div>
+
+    <table id="task_dg" lay-filter="task_dg_f"></table>
+
+    <div style="display:none" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="delete">删除任务</a>
+        {{# if(d.taskFlag == 1){ }}
+        <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="stop">停止任务</a>
+        {{#}}}
+        {{# if(d.taskFlag != 1){ }}
+        <a class="layui-btn layui-btn-xs" lay-event="start">开始任务</a>
+        {{#}}}
+    </div>
+
+    <script type="text/javascript" th:src="${#httpServletRequest.getContextPath()} + '/quartz/cronGen.js'"></script>
+    <script type="text/javascript" th:src="${#httpServletRequest.getContextPath()} + '/quartz/bootstrap.min.js'"></script>
+
+    <!-- 在js里面使用上下文路径的方法 -->
+    <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+        var ctxPath = /*[[@{/}]]*/ '';
+        /*]]>*/
+    </script>
+
+    <script th:inline="none">
+        var table = layui.table;
+        var task_list_table = table.render({
+            //为谁渲染
+            elem: '#task_dg'
+            ,page:true
+            ,limits:[5,10]
+            ,limit:5
+            ,url: ctxPath + '/task/list' //数据接口
+            ,cols: [[ //表头 ,cols修饰所有要展示的列
+                {type:'checkbox'}//开启复选框
+                ,{field: 'taskID', title: '序号',width:90, sort: true}
+                ,{field: 'taskKey', title: '任务名称'}
+                ,{field: 'taskDesc', title: '任务描述'}
+                ,{field: 'taskCron', title: '执行规则'}
+                ,{field: 'taskFlag', title: '执行状态', templet:function(d){
+                        var task_flag_str = "";
+                        if (0 == d.taskFlag){
+                            task_flag_str = "等待执行";
+                        }else if (1 == d.taskFlag){
+                            task_flag_str = "正在执行";
+                        }
+                        return task_flag_str;
+                    }}
+                ,{field: 'taskClass', title: '执行类',width:200}
+                ,{field: 'taskMethod', title: '执行方法'}
+                ,{fixed: 'right', title:"操作", width: 165, align:'center', toolbar: '#barDemo'}
+                ]],
+            toolbar:"#task_bg_toolbar"
+        });
+
+        //监听工具条
+        table.on('tool(task_dg_f)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'stop'){
+                //停止任务按钮被点击
+                update_task(data.taskID,"stop");
+            }else if(obj.event === 'start'){
+                //开始任务按钮被点击
+                update_task(data.taskID,"start");
+            }else if(obj.event === 'delete'){
+                //删除任务
+                delete_task(data.taskID,data.taskFlag);
+            }
+        });
+
+        //修改任务
+        function  delete_task(task_id,task_flag){
+            layer.confirm("是否确认删除任务",{title:'删除提示'},function(index){
+                $.get(ctxPath + "/task/deleteTask", {taskID:task_id,taskFlag:task_flag}, function(data){
+                    //关闭提示框
+                    layer.close(index);
+                    //刷新列表
+                    task_list_table.reload();
+                });
+            });
+        }
+
+        //修改任务
+        function  update_task(task_id,btn){
+            $.get(ctxPath + "/task/updateTask", {taskID:task_id,btn:btn}, function(data){
+                //刷新列表
+                task_list_table.reload();
+            });
+        }
+
+        //添加任务
+        function add_task_page(){
+            $.ajax({
+                url:ctxPath + "/task/toAddPage",
+                success:function(data){
+                    var layer = layui.layer;
+                    var task_add_layer = layer.open({
+                        type:1,
+                        title: '添加任务',
+                        area:["680px","580px"],
+                        content: data,
+                        anim:5,//弹框时的动画
+                        maxmin:true,
+                        skin:"layui-layer-molv",
+                        btn:["提交" , "重置"],
+                        yes:function() {
+                            $("#add_task_hide_btn").click();
+
+                                //把数据提交到后台
+                                $.ajax({
+                                    url:ctxPath + "/task/insert",
+                                    //serialize方法可以将表单直接序列化成json
+                                    data:$("#task_add_form").serialize(),
+                                    success:function(data) {
+                                        //关闭对话框
+                                        layer.close(task_add_layer);
+                                        //刷新列表
+                                        task_list_table.reload();
+                                    }
+                                });
+                        },
+                    });
+                }
+            });
+        }
+
+
+    </script>
+
+
+
+
+</body>
+</html>

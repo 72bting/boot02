@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加书籍</title>
+</head>
+<body>
+
+    <form id="book_add_form" class="layui-form" style="padding:10px">
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍名称</div>
+            <div class="layui-input-block">
+                <input lay-verify="required|bookname" name="bookName" placeholder="请输入" autocomplete="off" class="layui-input" >
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍作者</div>
+            <div class="layui-input-block">
+                <input name="bookAuthor" placeholder="请输入" class="layui-input" >
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍类型</div>
+            <div class="layui-input-block">
+                <input type="radio" name="bookType" value="1" title="悬疑" >
+                <input type="radio" name="bookType" value="2" title="恐怖" >
+                <input type="radio" name="bookType" value="3" title="推理" >
+                <input type="radio" name="bookType" value="4" title="寓言" >
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍价格</div>
+            <div class="layui-input-block">
+                <input name="bookPrice" placeholder="￥" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍描述</div>
+            <div class="layui-input-block">
+                <textarea name="bookDesc" placeholder="请输入" autocomplete="off" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-form-label">书籍日期</div>
+            <div class="layui-input-block">
+                <input name="bookDateStr" id="book_date" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-hide">
+            <input type="button" id="book_submit" lay-filter="book_submit_filter" value="确认">
+        </div>
+    </form>
+    <script>
+        //获取form组件
+        var book_add_form = layui.form;
+        //获取时间组件
+        var book_add_date = layui.laydate;
+        //渲染form样式
+        book_add_form.render();
+        //渲染日期
+        book_add_date.render({
+            elem: '#book_date',
+            trigger:'click' //解决日期点击闪退
+        });
+
+
+        book_add_form.verify({
+            bookname: function(value, item){ //value：表单的值、item：表单的DOM对象
+                if(!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)){
+                    return '用户名不能有特殊字符';
+                }
+                if(/(^\_)|(\__)|(\_+$)/.test(value)){
+                    return '用户名首尾不能出现下划线\'_\'';
+                }
+                if(/^\d*$/.test(value)){
+                    return '用户名不能全为数字';
+                }
+            }
+
+        });
+    </script>
+
+
+</body>
+</html>

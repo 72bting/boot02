@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <span th:text="${userName}"></span>
+    <input th:value="${userName}">
+    <hr>
+
+    <!-- 对象集合取值 -->
+    <div th:each="userra : ${ulist}" th:object="${userra}">
+        <span th:text="${userra.userAccount}"></span>
+    </div>
+
+    <hr>
+    <!-- 字符串集合取值 -->
+    <div th:each="sl : ${slist}">
+        <span th:text="${sl}"></span>
+    </div>
+
+    <!-- map 集合取值 -->
+    <div th:each="mm : ${map}">
+        <span th:text="${mm.key}"></span> :
+        <span th:text="${mm.value}"></span>
+    </div>
+
+    <hr>
+
+    <!-- 条件判断 == != > < >= <= -->
+    <!--<span th:text="LJS" th:if="${userAge == 32}"></span>-->
+    <span th:if="${userAge == 32}">LJS</span>
+
+    <hr>
+    <span th:text="${userAge == 32} ? 'dff' : 'fjjgfh'"></span>
+    <!-- ne(not equals) -->
+    <span th:text="${userAge ne 32} ? 'dff' : 'fjjgfh'"></span>
+
+    <hr>
+    <span th:text="${userName != null} ? '默认值' : ${userName}"></span>
+
+<!-- freemarker判断空值 ：${sri??} 证明是空值;  ${sri!""} 证明是空值 双引号里面写默认值 -->
+
+</body>
+</html>
