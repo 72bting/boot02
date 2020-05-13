@@ -1,6 +1,6 @@
 # 配置服务信息
 server:
-  port: 8080 # 项目端口
+  port: 8081 # 项目端口
   servlet:
     context-path: /springboot-demo02 # 项目名(项目上下文)
 
